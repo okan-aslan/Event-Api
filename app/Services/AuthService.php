@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\AuthRepository;
 use App\Traits\ApiResponses;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
@@ -24,5 +26,18 @@ class AuthService
         } catch (\Exception $e) {
             return $e->getMessage();
         }
+    }
+
+    public function login(array $data)
+    {
+        $user = $this->authRepository->findByEmail($data['email']);
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'message' => 'The provided credentials are incorrect.',
+            ]);
+        }
+
+        return $user;
     }
 }

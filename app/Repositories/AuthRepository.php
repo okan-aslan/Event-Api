@@ -17,4 +17,9 @@ class AuthRepository
     {
         return $this->model->create($data);
     }
+
+    public function findByEmail(string $email): User
+    {
+        return $this->model->where('email', $email)->first();
+    }
 }

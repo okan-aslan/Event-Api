@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Services\AuthService;
 use App\Traits\ApiResponses;
@@ -34,5 +35,21 @@ class AuthController extends Controller
             "User Created Successfully.",
             201
         );
+    }
+
+    public function login(LoginUserRequest $request)
+    {
+        $data = $request->all();
+
+        $user = $this->authService->login($data);
+
+        $deviceName = $request->header('User-Agent');
+
+        $message = 'User logged in  successfully.';
+
+        return $this->success([
+            'user' => $user,
+            'token' => $user->createToken($deviceName)->plainTextToken,
+        ], $message);
     }
 }
