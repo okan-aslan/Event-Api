@@ -22,4 +22,9 @@ class AuthRepository
     {
         return $this->model->where('email', $email)->first();
     }
+
+    public function destroy(string $id): int
+    {
+        return $this->model->destroy($id);
+    }
 }

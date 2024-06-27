@@ -40,4 +40,9 @@ class AuthService
 
         return $user;
     }
+
+    public function destroy(string $id)
+    {
+        $this->authRepository->destroy($id);
+    }
 }
