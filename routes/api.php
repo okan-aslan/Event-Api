@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\VenueController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,11 +14,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 });
 
-Route::get('venues', [VenueController::class, 'index']);
-Route::get('venue/{venue}', [VenueController::class, 'show']);
-
+Route::apiResource('venues', VenueController::class)->only(['index', 'show']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('venues/create', [VenueController::class, 'store']);
-    Route::put('venues/{venue}', [VenueController::class, 'update']);
-    Route::delete('venues/{venue}', [VenueController::class, 'destroy']);
+    Route::apiResource('venues', VenueController::class)->except(['index', 'show']);
+});
+
+Route::apiResource('events', EventController::class)->only(['index', 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('events', EventController::class)->except(['index', 'show']);
 });
