@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\EventRepository;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +18,7 @@ class EventService
 
     public function getAllEvents(): Collection
     {
-        return $this->eventRepository->getAllEvents();
+        return $this->eventRepository->all();
     }
 
     public function store(array $data)
@@ -25,26 +26,30 @@ class EventService
         return $this->eventRepository->store($data);
     }
 
-    public function findOrFail(string $id)
+    public function find(string $id)
     {
-        return $this->eventRepository->findOrFail($id);
+        return $this->eventRepository->find($id);
     }
 
     public function update(array $data, string $id): bool
     {
-        $event = $this->eventRepository->findOrFail($id);
-        if ($event->user_id != Auth::user()->id) {
-            return false;
+        $event = $this->eventRepository->find($id);
+        
+        if ($event->user_id != Auth::id()) {
+            throw new Exception("The event you're trying to update does not belong to you.");
         }
+        
         return $this->eventRepository->update($data, $id);
     }
 
-    public function destroy(string $id): bool|null
+    public function destroy(string $id): bool
     {
-        $event = $this->eventRepository->findOrFail($id);
-        if ($event->user_id != Auth::user()->id) {
-            return false;
+        $event = $this->eventRepository->find($id);
+        
+        if ($event->user_id != Auth::id()) {
+            throw new Exception("The event you're trying to delete does not belong to you.");
         }
+        
         return $this->eventRepository->destroy($id);
     }
 }

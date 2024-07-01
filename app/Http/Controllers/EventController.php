@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Http\Resources\EventResource;
 use App\Services\EventService;
 use App\Traits\ApiResponses;
-use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Http\JsonResponse;
 
 class EventController extends Controller
 {
@@ -26,7 +28,7 @@ class EventController extends Controller
     {
         $events = $this->eventService->getAllEvents();
 
-        return $this->success($events);
+        return $this->success(EventResource::collection($events));
     }
 
     /**
@@ -40,7 +42,7 @@ class EventController extends Controller
 
         $event = $this->eventService->store($data);
 
-        return $this->success($event, "Event Created Successfully", 201);
+        return $this->success(new EventResource($event), "Event Created Successfully", 201);
     }
 
     /**
@@ -48,36 +50,36 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        $event = $this->eventService->findOrFail($id);
+        $event = $this->eventService->find($id);
 
-        return $this->success($event);
+        return $this->success(new EventResource($event));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, string $id)
+    public function update(UpdateEventRequest $request, string $id): JsonResponse
     {
         $data = $request->validated();
 
-        $statement = $this->eventService->update($data, $id);
-
-        if (!$statement) {
-            return $this->error(null, "The Event You're Trying To Update is Not Belongs To You !", 401);
+        try {
+            $this->eventService->update($data, $id);
+            return $this->success(null, "Event updated successfully.");
+        } catch (Exception $e) {
+            return $this->error(null, $e->getMessage(), 401);
         }
-
-        return $this->success(null, "Event Updated Successfully");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        $statement = $this->eventService->destroy($id);
-        if (!$statement) {
-            return $this->error(null, "The Event You're Trying To Delete is Not Belongs To You !", 401);
+        try {
+            $this->eventService->destroy($id);
+            return $this->success(null, "Event deleted successfully.");
+        } catch (Exception $e) {
+            return $this->error(null, $e->getMessage(), 401);
         }
-        return $this->success(null, "Event Deleted Successfully");
     }
 }

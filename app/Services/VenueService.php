@@ -2,40 +2,52 @@
 
 namespace App\Services;
 
+use App\Models\Venue;
+use App\Repositories\EloquentModelRepository;
 use App\Repositories\VenueRepository;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class VenueService
 {
-    protected $venueRepository;
+    protected VenueRepository $venueRepository;
 
     public function __construct(VenueRepository $venueRepository)
     {
         $this->venueRepository = $venueRepository;
     }
 
-    public function getAllVenues(): Collection
+    public function all(): Collection
     {
-        return $this->venueRepository->getAllVenues();
+        return $this->venueRepository->all();
     }
 
-    public function store(array $data)
+    public function store(array $data): Venue
     {
         return $this->venueRepository->store($data);
     }
 
-    public function findOrFail(string $id)
+    public function find(string $id): Venue
     {
-        return $this->venueRepository->findOrFail($id);
+        return $this->venueRepository->find($id);
     }
 
-    public function update(array $data, string $id): bool
+    public function update(array $data, string $id): void
     {
-        return $this->venueRepository->update($data, $id);
+        $result = $this->venueRepository->update($data, $id);
+
+        if (!$result) {
+            throw new Exception("Error occurred while updating venue.");
+        }
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): void
     {
-        return $this->venueRepository->destroy($id);
+        try {
+            $this->venueRepository->destroy($id);
+        } catch (Exception $e) {
+            throw new Exception("Error occurred while deleting venue");
+        }
     }
 }

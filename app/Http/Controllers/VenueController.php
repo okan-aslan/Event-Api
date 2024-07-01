@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
+use App\Http\Resources\VenueResource;
 use App\Services\VenueService;
 use App\Traits\ApiResponses;
+use Exception;
 use Illuminate\Http\JsonResponse;
 
 
@@ -13,7 +15,7 @@ class VenueController extends Controller
 {
     use ApiResponses;
 
-    protected $venueService;
+    protected VenueService $venueService;
 
     public function __construct(VenueService $venueService)
     {
@@ -25,9 +27,9 @@ class VenueController extends Controller
      */
     public function index(): JsonResponse
     {
-        $venues = $this->venueService->getAllVenues();
+        $venues = $this->venueService->all();
 
-        return $this->success($venues);
+        return $this->success(VenueResource::collection($venues));
     }
 
     /**
@@ -39,7 +41,7 @@ class VenueController extends Controller
 
         $venue = $this->venueService->store($data);
 
-        return $this->success($venue, "Venue Created Successfully", 201);
+        return $this->success(new VenueResource($venue), "Venue Created Successfully", 201);
     }
 
     /**
@@ -47,9 +49,9 @@ class VenueController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $venue = $this->venueService->findOrFail($id);
+        $venue = $this->venueService->find($id);
 
-        return $this->success($venue);
+        return $this->success(new VenueResource($venue));
     }
 
     /**
@@ -59,9 +61,12 @@ class VenueController extends Controller
     {
         $data = $request->validated();
 
-        $this->venueService->update($data, $id);
-
-        return $this->success(null, "Venue Updated Successfully");
+        try {
+            $this->venueService->update($data, $id);
+            return $this->success(null, "Venue updated successfully.");
+        } catch (Exception $e) {
+            return $this->error(null, $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -71,8 +76,8 @@ class VenueController extends Controller
     {
         try {
             $this->venueService->destroy($id);
-            return $this->success(null, "Venue deleted successfully");
-        } catch (\Exception $e) {
+            return $this->success(null, "Venue removed successfully.");
+        } catch (Exception $e) {
             return $this->error(null, $e->getMessage(), 500);
         }
     }
