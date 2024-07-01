@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('city');
             $table->integer('capacity');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
