@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price', 12);
             $table->integer('stock');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('tickets', function (Blueprint $table) {
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->foreignId('ticket_type_id')->constrained('ticket_types');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
