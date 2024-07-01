@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidTicketStock;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
@@ -26,7 +27,12 @@ class StoreEventRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:255'],
             'date_time' => ['required', 'date'],
-            'ticket_stock' => ['required', 'integer', 'min:1'],
+            'ticket_stock' => [
+                'required',
+                'integer',
+                'min:1',
+                new ValidTicketStock($this->venue_id)
+            ],
         ];
     }
 }
