@@ -28,6 +28,8 @@ class EventController extends Controller
     {
         $events = $this->eventService->getAllEvents();
 
+        $events->load('venue');
+
         return $this->success(EventResource::collection($events));
     }
 
@@ -51,6 +53,8 @@ class EventController extends Controller
     public function show(string $id)
     {
         $event = $this->eventService->find($id);
+
+        $event->load('venue');
 
         return $this->success(new EventResource($event));
     }

@@ -19,7 +19,7 @@ class EventResource extends JsonResource
             'description' => $this->description,
             'dateTime' => $this->date_time,
             'ticketStock' => $this->ticket_stock,
-            'venue' => new VenueResource($this->venue), 
+            'venue' => new VenueResource($this->whenLoaded('venue')), 
         ];  
     }
 }
