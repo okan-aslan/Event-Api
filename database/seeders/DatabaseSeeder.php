@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Event;
+use App\Models\Ticket;
+use App\Models\TicketType;
 use App\Models\User;
 use App\Models\Venue;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -25,6 +27,17 @@ class DatabaseSeeder extends Seeder
             'venue_id' => function () {
                 return Venue::all()->random()->id;
             },
-        ]);
+        ])->each(function ($event) {
+            $ticketTypes = TicketType::factory(3)->create([
+                'event_id' => $event->id,
+            ]);
+
+            $ticketTypes->each(function ($ticketType) {
+                Ticket::factory(1)->create([
+                    'ticket_type_id' => $ticketType->id,
+                    'user_id' => User::all()->random()->id,
+                ]);
+            });
+        });
     }
 }
