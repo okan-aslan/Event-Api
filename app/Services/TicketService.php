@@ -55,17 +55,36 @@ class TicketService
 
     public function store(array $data): Ticket
     {
-        return $this->ticketRepository->store($data);
+        try {
+            $ticket = $this->ticketRepository->store($data);
+
+            $this->ticketRepository->descraseStock($data['ticket_type_id']);
+
+            return $ticket;
+        } catch (\Exception) {
+            return throw new Exception("Error occured while buying ticket");
+        }
     }
 
     public function destroy(string $id): bool
     {
-        $ticket = $this->ticketRepository->findUserTicket($id);
-        
-        if ($ticket->user_id != Auth::id()) {
-            throw new Exception("The ticket you're trying to delete does not belong to you.");
+        try {
+            $ticket = $this->ticketRepository->findUserTicket($id);
+            $ticketTypeId = $ticket->ticket_type_id;
+
+            if ($ticket->user_id != auth()->id()) {
+                throw new Exception("The ticket you're trying to delete does not belong to you.");
+            }
+
+            $this->ticketRepository->destroy($id);
+
+            if ($ticketTypeId) {
+                $this->ticketRepository->increaseStock($ticketTypeId);
+            }
+
+            return true;
+        } catch (Exception) {
+            return false;
         }
-        
-        return $this->ticketRepository->destroy($id);
     }
 }
