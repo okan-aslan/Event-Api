@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventCreated;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Http\Resources\EventResource;
@@ -43,6 +44,8 @@ class EventController extends Controller
         $data['user_id'] = auth()->id();
 
         $event = $this->eventService->store($data);
+
+        event(new EventCreated($event));
 
         return $this->success(new EventResource($event), "Event Created Successfully", 201);
     }
